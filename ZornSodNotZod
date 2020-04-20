@@ -1,0 +1,403 @@
+//AUTHOR:[Danny Zorn]
+//COURSE:[CPT 167]
+//PURPOSE:[demonstrate how to use multiple methods]
+//STARTDATE:[04-13-2020]
+
+package edu.cpt167.zorn.participation6;
+	//IMPORT SCANNER UTILITY
+	import java.util.Scanner;
+////////////////////////////////////////////////////////
+//START OF CLASS
+////////////////////////////////////////////////////////
+public class SodNotZod 
+{
+	//DECLARE CONSTANTS
+	public static final String	USER_SELECTION				=	"Your selection: ";
+	public static final String 	QUIT						= 	"QUIT and exit program";
+	public static final String 	DISCOUNT_NAME_MEMBERSHIP  	= 	"Member's Discount";
+	public static final String 	DISCOUNT_NAME_SENIOR    	= 	"Senior's Discount";
+	public static final String 	DISCOUNT_NAME_NONE			= 	"No Discount";
+	public static final double	DISCOUNT_RATE_MEMBER		=	.15;
+	public static final double	DISCOUNT_RATE_SENIOR		=	.25;
+	public static final double	DISCOUNT_RATE_NONE			=	0.0;
+	public static final double	TAX_RATE					=	.075;
+	public static final	int		MAX_PURCHASE_COUNT			=	2;
+	public static final String	PRODUCT_A					=	"Milorganite";
+	public static final String	PRODUCT_B					=	"Scott's Bonus S";
+	public static final String	PRODUCT_C					=	"Pennington ULTRAGREEN";
+	public static final double	PRODUCT_A_PRICE				=	15.98;
+	public static final double	PRODUCT_B_PRICE				=	24.48;
+	public static final double	PRODUCT_C_PRICE				=	40.0;
+	public static final String 	BORDER_BANNER    			= 	"************************************************************";
+	public static final String 	BORDER_BANNER_ALT    		= 	"------------------------------------------------------------";
+	public static final String 	BLANK_SPACE					= 	"";
+	public static final double	RESET_VALUE					=	0.0;
+	
+//======================================================
+	//START OF MAIN METHOD
+//======================================================
+	public static void main(String[] args) 
+	{
+		
+		//DECLARE SCANNER
+		Scanner userIn = new Scanner(System.in);
+		//Variables
+		String	userName				=	"";
+		char 	menuSelection			=	' ';
+		char	itemSelection			=	' ';
+		int		howMany					=	0;
+		String	userDiscount			=	"";
+		double	userDiscountAmt			=	0.0;
+		String	userItemSelection		=	"";
+		double 	userItemSelectionPrice	=	0.0;
+		double	discountAmt				=	0.0;
+		double	discountPrice			=	0.0;
+		double	subTotal				=	0.0;
+		double	tax						=	0.0;
+		double	totalCost				=	0.0;
+		double	grandTotal				=	0.0;
+		int		memberCount				=	0;
+		int		seniorCount				=	0;
+		int		noDiscountCount			=	0;
+		double	purchaseCounter			=	0;
+		int		productACount			=	0;
+		int		productBCount			=	0;
+		int		productCCount			=	0;
+		
+		//CALL displayWelcomeBanner()
+		displayWelcomeBanner();
+		
+		//CALL user name prompt()
+		userName	=	getUserName(userIn);
+		
+		//CALL membership menu()
+		menuSelection	=	validateMainMenu(userName,userIn);
+		
+		//START RunWhile LOOP
+		while (menuSelection != 'Q') 
+		{	
+			if (purchaseCounter < MAX_PURCHASE_COUNT)
+			{
+				//CALL item menu
+				itemSelection	=	validateItemMenu(userName,userIn);
+				
+				//CALL howMany prompt
+				howMany	=	validateHowMany(userIn);
+				
+				//SET userDiscount and userDiscountAmt
+				if (menuSelection == 'A')
+				{
+					userDiscount	=	DISCOUNT_NAME_MEMBERSHIP;
+					userDiscountAmt	=	DISCOUNT_RATE_MEMBER;	
+					memberCount++;
+				}
+				else if (menuSelection == 'B')
+				{
+					userDiscount	=	DISCOUNT_NAME_SENIOR;
+					userDiscountAmt	=	DISCOUNT_RATE_SENIOR;
+					seniorCount++;
+				}
+				else
+				{
+					userDiscount	=	DISCOUNT_NAME_NONE;
+					userDiscountAmt	=	DISCOUNT_RATE_NONE;
+					noDiscountCount++;
+				}
+				
+				//SET userItemSelection and userItemSelectionPrice
+				if (itemSelection == 'A')
+				{
+					userItemSelection		=	PRODUCT_A;
+					userItemSelectionPrice	=	PRODUCT_A_PRICE;
+					productACount++;
+				}
+				else if (itemSelection == 'B')
+				{
+					userItemSelection		=	PRODUCT_B;
+					userItemSelectionPrice	=	PRODUCT_B_PRICE;
+					productBCount++;
+				}
+				else
+				{
+					userItemSelection		=	PRODUCT_C;
+					userItemSelectionPrice	=	PRODUCT_C_PRICE;
+					productCCount++;
+				}
+				
+				//Processing
+				discountAmt		=	userItemSelectionPrice	*	userDiscountAmt;
+				discountPrice	=	userItemSelectionPrice	-	discountAmt;
+				subTotal		=	howMany	*	discountPrice;
+				tax				=	subTotal	*	TAX_RATE;
+				totalCost		=	totalCost	+	subTotal	+	tax;
+				grandTotal		=	grandTotal	+	totalCost;
+				
+				//CALL item receipt
+				displayItemReceipt(	userItemSelection,
+									userItemSelectionPrice,
+									userDiscount,
+									discountPrice,
+									howMany);
+
+				purchaseCounter++;	
+			}
+			else {
+				//CALL displayOrderTotal(subTotal, tax, totalCost)
+				displayOrderTotal(subTotal, tax, totalCost);
+				
+				// totalCost = RESET_VALUE
+				totalCost = RESET_VALUE;
+				
+				//purchaseCounter = RESET_VALUE
+				purchaseCounter = RESET_VALUE;
+				//CALL membership menu()
+				menuSelection	=	validateMainMenu(userName,userIn);
+			}//end of if statement
+			
+		}//END of RunWhile LOOP
+		
+		//evauluate whether print receipt or just bid farewell
+		if	(grandTotal	>	0)
+		{
+			//CALL Final Report
+			displayFinalReport(	userName,memberCount,
+								seniorCount,noDiscountCount,
+								productACount,productBCount,
+								productCCount,grandTotal);
+		}
+		
+		//CALL FareWell
+		fareWell(); 
+		
+		//Close Scanner obj
+		userIn.close();
+//======================================================
+	}//END OF MAIN METHOD
+//======================================================
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	//START OF displayWelcomeBanner
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	public static void displayWelcomeBanner() 
+	{
+		System.out.printf("%60s\r%60s\r%14.5sHELLO AND WELCOME TO SODNOTZOD!\r%60s\r%60s\r\r"
+							,BORDER_BANNER,BORDER_BANNER,BLANK_SPACE,BORDER_BANNER,BORDER_BANNER);	
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	}//END OF displayWelcomeBanner METHOD
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	//START OF getUserName
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	public static String getUserName(Scanner borrowedUserIn) 
+	{
+		String	borrowedUserName	=	"";
+		System.out.printf("\tPlease enter your name to begin.");
+		borrowedUserName	=	borrowedUserIn.nextLine();
+		return	borrowedUserName;
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	}//END OF getUserName METHOD
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+//######################################################
+	//START MEMBERSHIP MENU
+//######################################################
+	//START displayMainMenu MENU
+	public static void displayMainMenu(String borrowedUserName)
+	{
+		System.out.printf("\r\r%60s\r%60s\r%-21.5s%s\r%60s",BORDER_BANNER_ALT,BORDER_BANNER_ALT,BLANK_SPACE,"--DISCOUNT MENU--",BORDER_BANNER_ALT);
+		System.out.printf("\r%60s\r\tThank you, %s!\r\tPlease select a DISCOUNT status:\r"
+							,BORDER_BANNER_ALT,borrowedUserName);
+		System.out.printf("%60s\r",BORDER_BANNER_ALT);
+		System.out.printf("%2sPRESS [A] for [%-34s%1s%5.1f]\r",BLANK_SPACE,DISCOUNT_NAME_MEMBERSHIP,"%",DISCOUNT_RATE_MEMBER*100);
+		System.out.printf("%2sPRESS [B] for [%-34s%1s%5.1f]\r",BLANK_SPACE,DISCOUNT_NAME_SENIOR,"%",DISCOUNT_RATE_SENIOR*100);
+		System.out.printf("%2sPRESS [C] for [%-34s%1s%5.1f]\r",BLANK_SPACE,DISCOUNT_NAME_NONE,"%",DISCOUNT_RATE_NONE*100);
+		System.out.printf("\n\n%2sENTER [Q] to  [%s]\r",BLANK_SPACE,QUIT);
+		System.out.printf("%60s",BORDER_BANNER_ALT);
+		System.out.printf("\t\r"+USER_SELECTION);
+	}//END displayMainMenu method
+	
+	//START validateItemMenu
+	public static char validateMainMenu(String borrowedUserName,Scanner borrowedUserIn)
+	{
+		char	borrowedMenuSelection	=	' ';
+		//START validateMainMenu MENU
+		displayMainMenu(borrowedUserName);
+		//store userIn into Var
+		borrowedMenuSelection = borrowedUserIn.next().toUpperCase().charAt(0);
+		
+		while ( (borrowedMenuSelection != 'A')&&
+				(borrowedMenuSelection != 'B')&&
+				(borrowedMenuSelection != 'C')&&
+				(borrowedMenuSelection != 'Q') )
+		{
+			//display error
+			System.out.printf("\r\r%60s\r%-25.5s!!ERROR!!\r%-19.5s--INVALID SELECTION--\r%60s\r"
+								,BORDER_BANNER_ALT,BLANK_SPACE,BLANK_SPACE,BORDER_BANNER_ALT);
+			//display menu
+			displayMainMenu(borrowedUserName);
+			//store userIn into Var
+			borrowedMenuSelection = borrowedUserIn.next().toUpperCase().charAt(0);
+		}
+		return borrowedMenuSelection;
+//######################################################
+	}//END OF MEMBERSHIP METHOD
+//######################################################
+	
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//START ITEM SELECTION MENU
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//START displayItemMenu MENU
+	public static void displayItemMenu(String borrowedUserName)
+	{
+		System.out.printf("\r\r%60s\r%60s\r%-22s%s\r%60s",BORDER_BANNER_ALT,BORDER_BANNER_ALT,BLANK_SPACE,"--PRODUCT MENU--",BORDER_BANNER_ALT);
+		System.out.printf("\r%60s\r\tPlease select an ITEM, %s:\r",BORDER_BANNER_ALT,borrowedUserName);
+		System.out.printf("%60s",BORDER_BANNER_ALT);
+		System.out.printf("\n%2sPRESS [A] for [%-31s%1s%8.2f]\r",BLANK_SPACE,PRODUCT_A,"$",PRODUCT_A_PRICE);
+		System.out.printf("%2sPRESS [B] for [%-31s%1s%8.2f]\r",BLANK_SPACE,PRODUCT_B,"$",PRODUCT_B_PRICE);
+		System.out.printf("%2sPRESS [C] for [%-31s%1s%8.2f]\r",BLANK_SPACE,PRODUCT_C,"$",PRODUCT_C_PRICE);
+		System.out.printf("%60s",BORDER_BANNER_ALT);
+		System.out.printf("\t\r"+USER_SELECTION);
+	}//END displayItemMenu method
+	
+	//START validateItemMenu 
+	public static char validateItemMenu(String borrowedUserName,Scanner borrowedUserIn)
+	{
+		char	borrowedItemSelection	=	' ';
+		//START userSelection MENU
+		displayItemMenu(borrowedUserName);
+		//store userIn into Var
+		borrowedItemSelection = borrowedUserIn.next().toUpperCase().charAt(0);
+	
+		while ( (borrowedItemSelection != 'A')&&
+				(borrowedItemSelection != 'B')&&
+				(borrowedItemSelection != 'C') )
+		{
+			//display error
+			System.out.printf("\r\r%60s\r%-25.5s!!ERROR!!\r%-19.5s--INVALID SELECTION--\r%60s\r"
+								,BORDER_BANNER_ALT,BLANK_SPACE,BLANK_SPACE,BORDER_BANNER_ALT);
+			//display menu
+			displayItemMenu(borrowedUserName);
+			
+			//store userIn into Var
+			borrowedItemSelection = borrowedUserIn.next().toUpperCase().charAt(0);
+		}
+		return	borrowedItemSelection;
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	}//END ITEM SELECTION METHOD
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	//START QTY prompt
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	//START displayHowMany MENU
+	public static void displayHowMany()
+	{
+		//START item howMany prompt
+		System.out.printf("\r\r%60s\r%60s\r%-21s%s\r%60s",BORDER_BANNER_ALT,BORDER_BANNER_ALT,BLANK_SPACE,"--ENTER QUANTITY--",BORDER_BANNER_ALT);
+		System.out.printf("\r%60s\r\tPlease enter how many you'd like to purchase:\r%60s\r"
+							,BORDER_BANNER_ALT,BORDER_BANNER_ALT);
+		System.out.printf("\t\r"+USER_SELECTION);
+	}//END displayHowMany method
+	
+	//START validateHowMany 
+	public static int validateHowMany(Scanner borrowedUserIn)
+	{
+		int	borrowedHowMany	=	0;
+		displayHowMany();
+		//store userIn into Var
+		borrowedHowMany	=	borrowedUserIn.nextInt();
+	
+		return	borrowedHowMany;
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	}//END QTY MENU
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	//START of displayItemReceipt
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	public static void 	displayItemReceipt(	String borrowedItemName,
+											double borrowedItemPrice,
+											String borrowedUserDiscount,
+											double borrowedDiscountPrice,
+											int	   borrowedHowMany)
+
+	{
+		System.out.printf("\r\r%60s\r%22s--ITEM RECEIPT--\r%60s\r\r"
+							,BORDER_BANNER_ALT,BLANK_SPACE,BORDER_BANNER_ALT);
+		
+		System.out.printf("%2s%-30s%26s",BLANK_SPACE,"Item(s) purchased :",borrowedItemName);
+		System.out.printf("\r%2s%-47s%1s%8.2f",BLANK_SPACE,"Item(s) Price :","$",borrowedItemPrice);
+		
+		System.out.printf("\r\r%2s%-30s%26s",BLANK_SPACE,"Customer Discount :",borrowedUserDiscount);
+		
+		System.out.printf("\r\r%2s%-30s%18s%8.2f",BLANK_SPACE,"Discounted Price :","$",borrowedDiscountPrice);
+		System.out.printf("\r%2s%-47s%1s%8d",BLANK_SPACE,"Quantity :"," ",borrowedHowMany);
+
+		System.out.printf("\r\r%60s\r%21.5s%s\r%60s\r",BORDER_BANNER_ALT,BLANK_SPACE
+							,"--END OF REPORT--",BORDER_BANNER_ALT);				
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@	
+		}//END of displayItemReceipt
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	//START of Final Report
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	public static void displayFinalReport( String borrowedUserName,
+											int borrowedMemberCount,
+											int borrowedSeniorCount,
+											int borrowedNoDiscountCount,
+											int	borrowedProductACount,
+											int	borrowedProductBCount,
+											int	borrowedProductCCount,
+											double borrowedGrandTotal)
+	{	
+		System.out.printf("\r\r\r\r\r%60s\r",BORDER_BANNER);
+		System.out.printf("%22s--FINAL REPORT--\r",BLANK_SPACE);
+		System.out.printf("\t%s %s, %s\r","Thank you",borrowedUserName,"Here is your summary:");
+		System.out.printf("%60s\r",BORDER_BANNER);
+	
+		System.out.printf("\r%2s%-47s%1s%8d",BLANK_SPACE,"Total number of MEMBER customers :","",borrowedMemberCount);
+		System.out.printf("\r%2s%-47s%1s%8d",BLANK_SPACE,"Total number of SENIOR customers :","",borrowedSeniorCount);
+		System.out.printf("\r%2s%-47s%1s%8d",BLANK_SPACE,"Total number of NONMEMBER customers :","",borrowedNoDiscountCount);
+
+		System.out.printf("\r\r%18s%-21s%13s%6d","Total number of ",PRODUCT_A,"selections :",borrowedProductACount);
+		System.out.printf("\r%18s%-21s%13s%6d","Total number of ",PRODUCT_B,"selections :",borrowedProductBCount);
+		System.out.printf("\r%18s%-21s%13s%6d","Total number of ",PRODUCT_C,"selections :",borrowedProductCCount);
+		
+		System.out.printf("\r\r%2s%-47s%1s%8.2f\r\r",BLANK_SPACE,"Daily Total :","$",borrowedGrandTotal);
+		
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	}//START of Final Report
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	//START OF FareWell
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	public static void fareWell() 
+	{
+		System.out.printf("\r%60s\r%60s\r\tThank you! Have a great Day\r%60s\r%60s\r"
+							,BORDER_BANNER,BORDER_BANNER,BORDER_BANNER,BORDER_BANNER);	
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	}//END OF FareWell METHOD
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	//START of displayOrderTotal Report
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	public static void displayOrderTotal(double borrowedSubTotal, double borrowedTax, double borrowedTotalCost)
+	{	
+		System.out.printf("\r\r\r\r\r%60s\r",BORDER_BANNER);
+		System.out.printf("%22.5s--ORDER TOTAL--\r",BLANK_SPACE);
+		System.out.printf("%60s\r",BORDER_BANNER);
+	
+		System.out.printf("\r%2s%-47s%1s%8.2f",BLANK_SPACE,"Order Subtotal :","$",borrowedSubTotal);
+		System.out.printf("\r%2s%-47s%1s%8.2f",BLANK_SPACE,"Order Sales Tax :","$",borrowedTax);
+		System.out.printf("\r%2s%-47s%1s%8.2f",BLANK_SPACE,"Order Total :","$",borrowedTotalCost);
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	}//START of displayOrderTotal Report
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
+////////////////////////////////////////////////////////
+}//END OF CLASS
+////////////////////////////////////////////////////////
